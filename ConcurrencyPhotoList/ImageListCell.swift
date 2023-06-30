@@ -46,6 +46,8 @@ class ImageListCell: UITableViewCell {
             songImageView.image = listItem.image
             activityIndicator.startAnimating()
             activityIndicator.isHidden = false
+            startImageConversion()
+            
         case .converted:
             songImageView.image = listItem.image
             activityIndicator.stopAnimating()
@@ -60,24 +62,13 @@ class ImageListCell: UITableViewCell {
     }
     
     
-    func changeToPng(image: UIImage?) -> UIImage? {
-        guard let unwrappedImage = image else {
-            return image
-        }
-        
-        if let pngData = unwrappedImage.pngData() {
-            return UIImage(data: pngData)
-        }
-        return image
-    }
+    
     
     func startImageDownload() {
         guard delegate?.photoOperationsManager.downloadOperationInProgress[indexPath] == nil else {return}
         let downloadOperation = PhotoDownloadOperation(indexPath: indexPath, listItem: listItem)
         downloadOperation.completionBlock = {
             DispatchQueue.main.async {
-                self.activityIndicator.stopAnimating()
-                self.activityIndicator.isHidden = true
                 self.delegate?.photoOperationsManager.downloadOperationInProgress.removeValue(forKey: self.indexPath)
                 self.delegate?.doBatchRowUpdates(indexPath: self.indexPath, listItem: self.listItem)
             }
@@ -85,6 +76,15 @@ class ImageListCell: UITableViewCell {
         
         delegate?.photoOperationsManager.downloadOperationInProgress[indexPath] = downloadOperation
         delegate?.photoOperationsManager.downLoadOperationQueue.addOperation(downloadOperation)
+    }
+    
+    func startImageConversion() {
+        guard delegate?.photoOperationsManager.conversionOperationInprogress[indexPath] == nil else {return}
+        let conversionOperation = PhotoConversionOperation(photoItem: listItem, indexPath: self.indexPath)
+        conversionOperation.completionBlock = {
+            self.delegate?.photoOperationsManager.conversionOperationInprogress.removeValue(forKey: self.indexPath)
+            self.delegate?.doBatchRowUpdates(indexPath: self.indexPath, listItem: self.listItem)
+        }
     }
     
     

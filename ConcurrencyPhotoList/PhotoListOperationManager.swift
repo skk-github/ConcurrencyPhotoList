@@ -16,4 +16,11 @@ class PhotoListOperationManager {
         return operationQueue
     }()
     
+    lazy var conversionOperationInprogress: [IndexPath:Operation] = [:]
+    lazy var conversionOperationQueue: OperationQueue = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "com.conversionOperation"
+        return operationQueue
+    }()
+    
 }

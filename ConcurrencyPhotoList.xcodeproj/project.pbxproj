@@ -18,6 +18,7 @@
 		6B66BCB82A4C61C200184865 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B66BCB72A4C61C200184865 /* NetworkManager.swift */; };
 		6B6C37A32A4ECE82005F7770 /* PhotoDownloadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6C37A22A4ECE82005F7770 /* PhotoDownloadOperation.swift */; };
 		6B6C37A52A4ED366005F7770 /* PhotoListOperationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6C37A42A4ED366005F7770 /* PhotoListOperationManager.swift */; };
+		6B6C37A72A4EF02B005F7770 /* PhotoConversionOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6C37A62A4EF02B005F7770 /* PhotoConversionOperation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		6B66BCB72A4C61C200184865 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		6B6C37A22A4ECE82005F7770 /* PhotoDownloadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDownloadOperation.swift; sourceTree = "<group>"; };
 		6B6C37A42A4ED366005F7770 /* PhotoListOperationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoListOperationManager.swift; sourceTree = "<group>"; };
+		6B6C37A62A4EF02B005F7770 /* PhotoConversionOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoConversionOperation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 				6B66BCB52A4C61A800184865 /* SongElement.swift */,
 				6B66BCB72A4C61C200184865 /* NetworkManager.swift */,
 				6B6C37A22A4ECE82005F7770 /* PhotoDownloadOperation.swift */,
+				6B6C37A62A4EF02B005F7770 /* PhotoConversionOperation.swift */,
 				6B6C37A42A4ED366005F7770 /* PhotoListOperationManager.swift */,
 				6B66BCA52A4C536300184865 /* ViewController.swift */,
 				6B48B6162A4D83BA0088FC53 /* ImageListCell.swift */,
@@ -160,6 +163,7 @@
 				6B6C37A52A4ED366005F7770 /* PhotoListOperationManager.swift in Sources */,
 				6B66BCB82A4C61C200184865 /* NetworkManager.swift in Sources */,
 				6B66BCA22A4C536300184865 /* AppDelegate.swift in Sources */,
+				6B6C37A72A4EF02B005F7770 /* PhotoConversionOperation.swift in Sources */,
 				6B66BCA42A4C536300184865 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

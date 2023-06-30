@@ -56,7 +56,63 @@ class ViewController: UIViewController {
         
         
     }
+    
+    
+    func suspendPhotoListOperations() {
+        photoOperationsManager.conversionOperationQueue.isSuspended = true
+        photoOperationsManager.downLoadOperationQueue.isSuspended = true
+    }
+    
+    func resumePhotoListOperations() {
+        photoOperationsManager.conversionOperationQueue.isSuspended = false
+        photoOperationsManager.downLoadOperationQueue.isSuspended = false
+    }
 
+    func performCancelAndRestoreOperations() {
+        var pendingOperations = Set(photoOperationsManager.downloadOperationInProgress.keys)
+    
+        pendingOperations.formUnion(photoOperationsManager.conversionOperationInprogress.keys)
+        
+        if let cellsVisibleIndex = imageListTableView.indexPathsForVisibleRows {
+            let visibleCellSet = Set(cellsVisibleIndex)
+            
+            var toBeCancelled = pendingOperations
+            toBeCancelled.subtract(visibleCellSet)
+        
+            for indexPath in toBeCancelled {
+                
+                if let downloadOperation = photoOperationsManager.downloadOperationInProgress[indexPath]{
+                    downloadOperation.cancel()
+                }
+                photoOperationsManager.downloadOperationInProgress.removeValue(forKey: indexPath)
+                if let conversionOperation = photoOperationsManager.conversionOperationInprogress[indexPath]{
+                    conversionOperation.cancel()
+                }
+                photoOperationsManager.conversionOperationInprogress.removeValue(forKey: indexPath)
+            }
+            
+            let toBeStarted = visibleCellSet.subtracting(toBeCancelled)
+            
+            var toStartArray = [IndexPath]()
+            for indexPath in toBeStarted {
+//
+//                if let downloadOperation = photoOperationsManager.downloadOperationInProgress[indexPath]
+//                if let conversionOperation = photoOperationsManager.conversionOperationInprogress[indexPath]{
+//                    conversionOperation.cancel()
+//                }
+                toStartArray.append(indexPath)
+            }
+            
+            imageListTableView.performBatchUpdates {
+                imageListTableView.reloadRows(at: toStartArray, with: .none)
+            }
+            
+
+            
+        }
+      
+    }
+    
 
 }
 
@@ -74,6 +130,10 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            performCancelAndRestoreOperations()
+            resumePhotoListOperations()
+        }
         if let visibleCellIndex = imageListTableView.indexPathsForVisibleRows, !decelerate {
             imageListTableView.performBatchUpdates {
                 imageListTableView.reloadRows(at: visibleCellIndex, with: .none)
@@ -82,12 +142,21 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        if let visibleCellIndex = imageListTableView.indexPathsForVisibleRows{
-            imageListTableView.performBatchUpdates {
-                imageListTableView.reloadRows(at: visibleCellIndex, with: .none)
-            }
-        }
+        performCancelAndRestoreOperations()
+        resumePhotoListOperations()
+//        if let visibleCellIndex = imageListTableView.indexPathsForVisibleRows{
+//            imageListTableView.performBatchUpdates {
+//                imageListTableView.reloadRows(at: visibleCellIndex, with: .none)
+//            }
+//        }
     }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        suspendPhotoListOperations()
+    }
+    
+    
+    
     
 }
 
