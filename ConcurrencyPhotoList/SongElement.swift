@@ -8,6 +8,8 @@
 import UIKit
 
 
+
+
 struct SongElement: Codable {
     let id: Int
     let albumID: Int?
@@ -18,12 +20,15 @@ struct SongElement: Codable {
 
 
 struct SongItem {
+    enum ImageStatus {
+        case new, downloaded, converted, downloadFailed
+    }
     var id: Int
     var title: String
     var albumID: Int?
     var url, thumbnailURL: String?
     var image: UIImage? = nil
-    
+    var imageStatus: ImageStatus
    
     
     init(songElement: SongElement) {
@@ -32,6 +37,6 @@ struct SongItem {
         self.title = songElement.title
         self.url = songElement.url
         self.thumbnailURL = songElement.thumbnailURL
-    
+        self.imageStatus = .new
     }
 }
