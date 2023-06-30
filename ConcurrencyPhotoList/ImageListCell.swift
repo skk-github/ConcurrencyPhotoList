@@ -8,6 +8,10 @@
 import Foundation
 import UIKit
 
+protocol ImageListCellDelegate: AnyObject {
+    func doBatchRowUpdates(indexPath: IndexPath, listItem: SongItem)
+}
+
 
 class ImageListCell: UITableViewCell {
     
@@ -19,9 +23,16 @@ class ImageListCell: UITableViewCell {
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    var indexPath: IndexPath!
+    var listItem: SongItem!
     
-    func setDetails(listItem: inout SongItem) {
+    weak var delegate: ImageListCellDelegate?
+    
+    
+    func setDetails(listItem: SongItem, indexPath: IndexPath) {
         titleLabel.text = listItem.title
+        self.indexPath = indexPath
+        self.listItem = listItem
         if let image = listItem.image {
             songImageView.image = image
             
@@ -29,30 +40,52 @@ class ImageListCell: UITableViewCell {
             activityIndicator.isHidden = true
             
         }else{
-            guard let url = URL(string: listItem.url ?? "") else {
-                print("url error")
+            
+            
+            
+            
+            
+            
+            
+            guard let urlStr = listItem.url  else {
+                print("url string error")
                 return
             }
-            do{
-                let imageData = try Data(contentsOf: url)
-                
-                let pngData =  UIImage(data: imageData)?.pngData()
-                if let unwrappedPngData = pngData {
-                    listItem.image = UIImage(data: unwrappedPngData)
-                    songImageView.image = listItem.image
+            NetworkManager().downloadImage(imageURLStr: urlStr) {[weak self] result in
+                guard let self = self else {return}
+                DispatchQueue.main.async {
+                    switch result {
+                        
+                    case .success(let image):
+                        self.listItem.image = self.changeToPng(image: image)
+                        self.songImageView.image = listItem.image
+                        self.activityIndicator.stopAnimating()
+                        self.activityIndicator.isHidden = true
+                        self.delegate?.doBatchRowUpdates(indexPath: self.indexPath, listItem: self.listItem)
+                    case .failure(_):
+                        self.activityIndicator.stopAnimating()
+                        self.activityIndicator.isHidden = true
+                        
+                    }
                 }
-                
-                
-                activityIndicator.stopAnimating()
-                activityIndicator.isHidden = true
-            }catch{
-                activityIndicator.isHidden = false
-                activityIndicator.startAnimating()
             }
+            
             
             
         }
         
+    }
+    
+    
+    func changeToPng(image: UIImage?) -> UIImage? {
+        guard let unwrappedImage = image else {
+            return image
+        }
+        
+        if let pngData = unwrappedImage.pngData() {
+            return UIImage(data: pngData)
+        }
+        return image
     }
     
     

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum APIErrors: Error, CustomStringConvertible {
     
@@ -47,7 +48,7 @@ class NetworkManager {
          let urlReq = URLRequest(url: url)
         
         let dataTask = URLSession.shared.dataTask(with: urlReq) { data, resp, err in
-            if let err = err {
+            if let _ = err {
                 completion(.failure(APIErrors.urlsessionError))
             }
             if let resp = resp as? HTTPURLResponse, !(200...299).contains(resp.statusCode){
@@ -71,4 +72,30 @@ class NetworkManager {
         dataTask.resume()
         
     }
+    
+    func downloadImage(imageURLStr: String, completion: @escaping(Result<UIImage?,APIErrors>)->Void) {
+        guard let url = URL(string: imageURLStr)  else {
+            completion(.failure(.badUrl))
+            return
+        }
+        URLSession.shared.dataTask(with: URLRequest(url: url)) { data, response, sessionError in
+            if let _ = sessionError {
+                completion(.failure(.urlsessionError))
+            }else if let unwrappedResponse = response as? HTTPURLResponse, !(200...299).contains(unwrappedResponse.statusCode) {
+                completion(.failure(.responseError))
+            }else if let unwrappedData = data {
+                let image = UIImage(data: unwrappedData)
+                completion(.success(image))
+            }else{
+                completion(.failure(.otherError("data unwrapping failed")))
+            }
+            
+            
+                     
+        }.resume()
+        
+        
+    }
+    
+    
 }

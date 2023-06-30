@@ -67,11 +67,42 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ImageListCell", for: indexPath) as! ImageListCell
-        
-        cell.setDetails(listItem: &imageListArray[indexPath.row])
+        cell.delegate = self
+        cell.setDetails(listItem: imageListArray[indexPath.row], indexPath: indexPath)
         
         return cell
     }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if let visibleCellIndex = imageListTableView.indexPathsForVisibleRows, !decelerate {
+            imageListTableView.performBatchUpdates {
+                imageListTableView.reloadRows(at: visibleCellIndex, with: .none)
+            }
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        if let visibleCellIndex = imageListTableView.indexPathsForVisibleRows{
+            imageListTableView.performBatchUpdates {
+                imageListTableView.reloadRows(at: visibleCellIndex, with: .none)
+            }
+        }
+    }
+    
+}
+
+extension ViewController: ImageListCellDelegate {
+    func doBatchRowUpdates(indexPath: IndexPath, listItem: SongItem) {
+        imageListArray[indexPath.row] = listItem
+        if ((imageListTableView.indexPathsForVisibleRows?.contains(indexPath)) != nil) {
+            imageListTableView.performBatchUpdates {
+                imageListTableView.reloadRows(at: [indexPath], with: .none)
+            }
+        }
+    }
+    
+    
+    
     
     
 }
