@@ -19,7 +19,7 @@ struct SongElement: Codable {
 }
 
 
-struct SongItem {
+class SongItem {
     enum ImageStatus {
         case new, downloaded, converted, downloadFailed
     }

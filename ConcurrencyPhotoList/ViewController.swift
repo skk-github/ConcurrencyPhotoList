@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     
     
     var imageListArray: [SongItem] = []
-    
+    lazy var photoOperationsManager = PhotoListOperationManager()
     
 
     override func viewDidLoad() {
@@ -91,14 +91,14 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
 }
 
-extension ViewController: ImageListCellDelegate {
+extension ViewController: ImageListCellDelegate { 
     func doBatchRowUpdates(indexPath: IndexPath, listItem: SongItem) {
-        imageListArray[indexPath.row] = listItem
-        if ((imageListTableView.indexPathsForVisibleRows?.contains(indexPath)) != nil) {
+
+//        if ((imageListTableView.indexPathsForVisibleRows?.contains(indexPath)) != nil) {
             imageListTableView.performBatchUpdates {
                 imageListTableView.reloadRows(at: [indexPath], with: .none)
             }
-        }
+//        }
     }
     
     

@@ -10,6 +10,7 @@ import UIKit
 
 protocol ImageListCellDelegate: AnyObject {
     func doBatchRowUpdates(indexPath: IndexPath, listItem: SongItem)
+    var photoOperationsManager: PhotoListOperationManager {get}
 }
 
 
@@ -33,46 +34,28 @@ class ImageListCell: UITableViewCell {
         titleLabel.text = listItem.title
         self.indexPath = indexPath
         self.listItem = listItem
-        if let image = listItem.image {
-            songImageView.image = image
+        
+        switch self.listItem.imageStatus {
             
+        case .new:
+            startImageDownload()
+            activityIndicator.startAnimating()
+            activityIndicator.isHidden = false
+            songImageView.image = UIImage(systemName: "music.note")
+        case .downloaded:
+            songImageView.image = listItem.image
+            activityIndicator.startAnimating()
+            activityIndicator.isHidden = false
+        case .converted:
+            songImageView.image = listItem.image
             activityIndicator.stopAnimating()
             activityIndicator.isHidden = true
-            
-        }else{
-            
-            
-            
-            
-            
-            
-            
-            guard let urlStr = listItem.url  else {
-                print("url string error")
-                return
-            }
-            NetworkManager().downloadImage(imageURLStr: urlStr) {[weak self] result in
-                guard let self = self else {return}
-                DispatchQueue.main.async {
-                    switch result {
-                        
-                    case .success(let image):
-                        self.listItem.image = self.changeToPng(image: image)
-                        self.songImageView.image = listItem.image
-                        self.activityIndicator.stopAnimating()
-                        self.activityIndicator.isHidden = true
-                        self.delegate?.doBatchRowUpdates(indexPath: self.indexPath, listItem: self.listItem)
-                    case .failure(_):
-                        self.activityIndicator.stopAnimating()
-                        self.activityIndicator.isHidden = true
-                        
-                    }
-                }
-            }
-            
-            
-            
+        case .downloadFailed:
+            activityIndicator.stopAnimating()
+            activityIndicator.isHidden = true
+            songImageView.image = UIImage(systemName: "wrongwaysign")
         }
+        
         
     }
     
@@ -86,6 +69,22 @@ class ImageListCell: UITableViewCell {
             return UIImage(data: pngData)
         }
         return image
+    }
+    
+    func startImageDownload() {
+        guard delegate?.photoOperationsManager.downloadOperationInProgress[indexPath] == nil else {return}
+        let downloadOperation = PhotoDownloadOperation(indexPath: indexPath, listItem: listItem)
+        downloadOperation.completionBlock = {
+            DispatchQueue.main.async {
+                self.activityIndicator.stopAnimating()
+                self.activityIndicator.isHidden = true
+                self.delegate?.photoOperationsManager.downloadOperationInProgress.removeValue(forKey: self.indexPath)
+                self.delegate?.doBatchRowUpdates(indexPath: self.indexPath, listItem: self.listItem)
+            }
+        }
+        
+        delegate?.photoOperationsManager.downloadOperationInProgress[indexPath] = downloadOperation
+        delegate?.photoOperationsManager.downLoadOperationQueue.addOperation(downloadOperation)
     }
     
     
